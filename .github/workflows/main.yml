@@ -33,3 +33,4 @@ jobs:
               with:
                   name: mediascraper-release
                   path: release/
+                  retention-days: 1

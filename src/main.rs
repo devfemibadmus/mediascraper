@@ -3,6 +3,8 @@ use actix_files::Files;
 use tera::Tera;
 use regex::Regex;
 use serde::Serialize;
+use serde_json::Value;
+use std::collections::HashMap;
 
 mod platforms;
 use platforms::{tiktok::TikTokv2, facebook::Facebook, instagram::Instagram};
@@ -38,25 +40,19 @@ impl Validator {
 }
 
 #[route("/api/", method = "GET", method = "POST")]
-async fn api_handler(
-        client: web::Data<reqwest::Client>, 
-        form: Option<web::Form<std::collections::HashMap<String, String>>>, 
-        query: Option<web::Query<std::collections::HashMap<String, String>>>,
-    ) -> impl Responder {
-    let form = form.map_or_else(|| std::collections::HashMap::new(), |f| f.into_inner());
-    let query = query.map_or_else(|| std::collections::HashMap::new(), |q| q.into_inner());
-    let url = form.get("url").or(query.get("url"));
-    let cut: bool = form.get("cut")
-    .or(query.get("cut"))
-    .map(|s| s == "true")
-    .unwrap_or(false);
+async fn api_handler(client: web::Data<reqwest::Client>, body: web::Bytes,) -> impl Responder {
+    let json: HashMap<String, Value> = serde_json::from_slice(&body).unwrap_or_default();
+    // println!("json: {:?}", json);
+    // println!("json: {:?}", body);
 
+    let url = json.get("url").and_then(|v| v.as_str());
+    let cut = json.get("cut").and_then(|v| v.as_bool()).unwrap_or(false);
 
     if url.is_none() {
         return HttpResponse::BadRequest().json(ApiResponse::<()>{
             success: false,
             data: None,
-            message: Some("URL is required".to_string()),
+            message: Some("URL is requmired".to_string()),
             error_message: None,
         });
     }
@@ -82,7 +78,7 @@ async fn api_handler(
             }
         },
         "Facebook" => {
-            let mut fb = Facebook::new(url, cut, client.get_ref().clone());
+            let mut fb = Facebook::new(&url.replace("web.facebook","www.facebook"), cut, client.get_ref().clone());
             let (data, status) = fb.get_data().await;
             if status == 200 {
                 HttpResponse::Ok().json(ApiResponse { success: true, data: Some(data), message: None, error_message: None })

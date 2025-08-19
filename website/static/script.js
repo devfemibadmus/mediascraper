@@ -27,10 +27,7 @@ console.log(
 searchButton.addEventListener("click", function (event) {
 	event.preventDefault();
 	const url = searchInput.value;
-
-	var formData = new FormData();
-	formData.append("url", url);
-	formData.append("cut", true);
+	var payload = { url: url, cut: true };
 
 	sections.forEach((section) => {
 		section.classList.remove("active");
@@ -44,7 +41,8 @@ searchButton.addEventListener("click", function (event) {
 
 	fetch("/api/", {
 		method: "POST",
-		body: formData,
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(payload),
 	})
 		.then((response) => response.json())
 		.then((response) => {
@@ -85,152 +83,68 @@ searchButton.addEventListener("click", function (event) {
 });
 
 class TikTokContentManager {
-	constructor(scrollableContainer, saveId) {
-		this.scrollableContainer = scrollableContainer;
+	constructor(container, saveId) {
+		this.container = container;
 		this.saveId = saveId;
 	}
 
-	formatValue(value) {
-		return typeof value === "number"
-			? value >= 1e6
-				? (value / 1e6).toFixed(1) + "m"
-				: value >= 1e3
-				? (value / 1e3).toFixed(1) + "k"
-				: value
-			: value;
+	formatValue(v) {
+		return typeof v === "number" ? (v >= 1e6 ? (v / 1e6).toFixed(1) + "m" : v >= 1e3 ? (v / 1e3).toFixed(1) + "k" : v) : v || "N/A";
+	}
+
+	createContainer(obj, exclude = [], titleText = "Item", mediaSrc = null, mediaType = "img", downloadAttr = null) {
+		const div = document.createElement("div");
+		const title = document.createElement("p");
+		div.className = "container post";
+		title.className = "title";
+		title.innerHTML = `<p class='key'>${titleText}:</p>`;
+
+		for (const key in obj) {
+			if (!exclude.includes(key) && obj.hasOwnProperty(key)) {
+				const spanKey = document.createElement("span");
+				spanKey.innerHTML = downloadAttr ? `<a href='${downloadAttr}' download class='key'>${key}: </a>` : key + ": ";
+				const spanValue = document.createElement("span");
+				spanValue.textContent = this.formatValue(obj[key]) + " ";
+				title.appendChild(spanKey);
+				title.appendChild(spanValue);
+			}
+		}
+
+		div.append(title);
+
+		if (mediaSrc) {
+			const media = mediaType === "video" ? document.createElement("video") : document.createElement("img");
+			media.className = "productimg";
+			media.crossOrigin = "anonymous";
+			if (mediaType === "video") media.controls = true;
+			media.src = mediaSrc;
+			div.insertBefore(media, title);
+		}
+
+		this.container.insertBefore(div, this.saveId.nextSibling);
+		return div;
 	}
 
 	setContent(content) {
-		const contentDiv = document.createElement("div");
-		const contentTitle = document.createElement("p");
-		const contentCover = document.createElement("img");
-		contentDiv.className = "container post";
-		contentTitle.className = "title";
-		contentCover.className = "productimg";
-
-		contentTitle.innerHTML = "<p class='key'>Post:</p>";
-
-		for (const key in content) {
-			if (content.hasOwnProperty(key) && key !== "cover" && key !== "id") {
-				const spanKey = document.createElement("span");
-				//  spanKey.className = 'key';
-				//  spanKey.textContent = key + ': ';
-				spanKey.innerHTML = `<a href='${content.cover}' download class='key'>${key}: </a>`;
-
-				const spanValue = document.createElement("span");
-				//spanValue.className = key;
-				spanValue.textContent = content[key] != "" ? this.formatValue(content[key]) + " " : "N/A ";
-
-				contentTitle.appendChild(spanKey);
-				contentTitle.appendChild(spanValue);
-			}
-		}
-		contentCover.src = content.cover;
-
-		contentDiv.append(contentCover);
-		contentDiv.append(contentTitle);
-		this.scrollableContainer.insertBefore(contentDiv, this.saveId.nextSibling);
+		this.createContainer(content, ["cover", "id"], "Post", content.cover, "img", content.cover);
 	}
 
 	setAuthor(author) {
-		const authorDiv = document.createElement("div");
-		const authorTitle = document.createElement("p");
-		const authorCover = document.createElement("img");
-		authorDiv.className = "container post";
-		authorTitle.className = "title";
-		authorCover.className = "productimg";
-
-		authorTitle.innerHTML = "<p class='key'>Author:</p>";
-
-		for (const key in author) {
-			if (author.hasOwnProperty(key) && key !== "image" && key !== "id") {
-				const spanKey = document.createElement("span");
-				spanKey.className = "key";
-				spanKey.textContent = key + ": ";
-
-				const spanValue = document.createElement("span");
-				spanValue.className = key;
-				spanValue.textContent = this.formatValue(author[key]) + " ";
-
-				authorTitle.appendChild(spanKey);
-				authorTitle.appendChild(spanValue);
-			}
-		}
-		authorCover.src = author.image;
-
-		authorDiv.append(authorCover);
-		authorDiv.append(authorTitle);
-		this.scrollableContainer.insertBefore(authorDiv, this.saveId.nextSibling);
+		this.createContainer(author, ["image", "id"], "Author", author.image);
 	}
 
 	setMusic(music) {
-		const musicDiv = document.createElement("div");
-		const musicTitle = document.createElement("p");
-		const musicCover = document.createElement("img");
-		musicDiv.className = "container post";
-		musicCover.className = "productimg";
-		musicTitle.className = "title";
-		musicCover.src = music.cover;
-
-		musicTitle.innerHTML = `<p class='key'><span><a href='${music.src}' download='${music.author}.mp3' referrerpolicy='no-referrer'>Download </a></span> Music:</p>`;
-
-		for (const key in music) {
-			if (music.hasOwnProperty(key) && key !== "src" && key !== "cover") {
-				const spanKey = document.createElement("span");
-				spanKey.className = "key";
-				spanKey.textContent = key + ": ";
-
-				const spanValue = document.createElement("span");
-				//spanValue.className = key;
-				spanValue.textContent = this.formatValue(music[key]) + " ";
-
-				musicTitle.appendChild(spanKey);
-				musicTitle.appendChild(spanValue);
-			}
-		}
-
-		musicDiv.append(musicCover);
-		musicDiv.append(musicTitle);
-		this.scrollableContainer.insertBefore(musicDiv, this.saveId.nextSibling);
+		this.createContainer(music, ["src", "cover"], "Music", music.cover, "img", music.src);
 	}
 
 	setMedia(datas) {
-		const media = datas.videos ?? datas.images;
-
-		media.forEach((mediaData) => {
-			const contentDiv = document.createElement("div");
-			const contentTitle = document.createElement("p");
-			contentDiv.className = "container post";
-			contentTitle.className = "title";
-			// contentTitle.innerHTML = `<p class='key'>${mediaData.id}</p>`;
-
-			for (const key in mediaData) {
-				if (mediaData.hasOwnProperty(key) && key !== "is_video" && key !== "address" && key !== "cover" && key !== "id") {
-					const spanKey = document.createElement("span");
-					//  spanKey.className = 'key';
-					//  spanKey.textContent = key + ': ';
-					spanKey.innerHTML = `<a href='${mediaData[key]["address"]}' download='${mediaData[key]}.${
-						mediaData.is_video ? "mp4" : "png"
-					}' class='key'>${key}: </a>`;
-
-					const spanValue = document.createElement("span");
-					spanValue.className = key;
-					spanValue.textContent = (Number(mediaData[key]["size"]) / 1024 / 1024).toFixed(3) + "MB";
-
-					contentTitle.appendChild(spanKey);
-					contentTitle.appendChild(spanValue);
-
+		const mediaList = datas.videos ?? datas.images;
+		mediaList.forEach((m) => {
+			for (const key in m) {
+				if (m.hasOwnProperty(key)) {
 					const isVideo = datas.is_video;
-					const mediaElement = isVideo ? document.createElement("video") : document.createElement("img");
-					mediaElement.className = "productimg";
-					mediaElement.crossOrigin = "anonymous";
-
-					mediaElement.controls = true;
-					mediaElement.src = "https://api.cors.lol/?url=" + encodeURIComponent(mediaData[key]["address"]);
-
-					contentDiv.appendChild(mediaElement);
-					contentDiv.append(contentTitle);
-					this.scrollableContainer.insertBefore(contentDiv, saveId.nextSibling);
+					const src = "https://api.cors.lol/?url=" + encodeURIComponent(m[key]["address"]);
+					this.createContainer(m[key], ["address", "is_video", "cover", "id"], key, src, isVideo ? "video" : "img");
 				}
 			}
 		});
@@ -238,254 +152,140 @@ class TikTokContentManager {
 }
 
 class InstagramContentManager {
-	constructor(scrollableContainer, saveId) {
-		this.scrollableContainer = scrollableContainer;
+	constructor(container, saveId) {
+		this.container = container;
 		this.saveId = saveId;
 	}
 
-	formatValue(value) {
-		return typeof value === "number"
-			? value >= 1e6
-				? (value / 1e6).toFixed(1) + "m"
-				: value >= 1e3
-				? (value / 1e3).toFixed(1) + "k"
-				: value
-			: value;
+	formatValue(v) {
+		return typeof v === "number" ? (v >= 1e6 ? (v / 1e6).toFixed(1) + "m" : v >= 1e3 ? (v / 1e3).toFixed(1) + "k" : v) : v;
+	}
+
+	createContainer(obj, excludeKeys = [], mediaKey = null) {
+		const div = document.createElement("div");
+		const title = document.createElement("p");
+		div.className = "container post";
+		title.className = "title";
+		title.innerHTML = `<p class='key'>${mediaKey || "Item"}:</p>`;
+
+		for (const key in obj) {
+			if (!excludeKeys.includes(key) && obj.hasOwnProperty(key)) {
+				const spanKey = document.createElement("span");
+				spanKey.className = "key";
+				spanKey.textContent = key + ": ";
+
+				const spanValue = document.createElement("span");
+				spanValue.className = key;
+				spanValue.textContent = this.formatValue(obj[key]) + " ";
+
+				title.appendChild(spanKey);
+				title.appendChild(spanValue);
+			}
+		}
+
+		div.append(title);
+		this.container.insertBefore(div, this.saveId.nextSibling);
+		return div;
 	}
 
 	setContent(content) {
-		const contentDiv = document.createElement("div");
-		const contentTitle = document.createElement("p");
-		const contentCover = document.createElement("img");
-		contentDiv.className = "container post";
-		contentTitle.className = "title";
-		contentCover.className = "productimg";
-
-		contentTitle.innerHTML = "<p class='key'>Post:</p>";
-
-		for (const key in content) {
-			if (content.hasOwnProperty(key) && key !== "cover" && key !== "id") {
-				const spanKey = document.createElement("span");
-				spanKey.className = "key";
-				spanKey.textContent = key + ": ";
-
-				const spanValue = document.createElement("span");
-				spanValue.className = key;
-				spanValue.textContent = this.formatValue(content[key]) + " ";
-
-				contentTitle.appendChild(spanKey);
-				contentTitle.appendChild(spanValue);
-			}
-		}
-		contentCover.referrerPolicy = "no-referrer";
-		contentCover.crossOrigin = "anonymous";
-		contentCover.src = "https://api.cors.lol/?url=" + encodeURIComponent(content.cover);
-
-		contentDiv.append(contentCover);
-		contentDiv.append(contentTitle);
-		this.scrollableContainer.insertBefore(contentDiv, this.saveId.nextSibling);
+		const div = this.createContainer(content, ["cover", "id"], "Post");
+		const img = document.createElement("img");
+		img.className = "productimg";
+		img.referrerPolicy = "no-referrer";
+		img.crossOrigin = "anonymous";
+		img.src = "https://api.cors.lol/?url=" + encodeURIComponent(content.cover);
+		div.insertBefore(img, div.firstChild);
 	}
 
 	setAuthor(author) {
-		const authorDiv = document.createElement("div");
-		const authorTitle = document.createElement("p");
-		const authorCover = document.createElement("img");
-		authorDiv.className = "container post";
-		authorTitle.className = "title";
-		authorCover.className = "productimg";
-
-		authorTitle.innerHTML = "<p class='key'>Author:</p>";
-
-		for (const key in author) {
-			if (author.hasOwnProperty(key) && key !== "image" && key !== "id") {
-				const spanKey = document.createElement("span");
-				spanKey.className = "key";
-				spanKey.textContent = key + ": ";
-
-				const spanValue = document.createElement("span");
-				spanValue.className = key;
-				spanValue.textContent = this.formatValue(author[key]) + " ";
-
-				authorTitle.appendChild(spanKey);
-				authorTitle.appendChild(spanValue);
-			}
-		}
-
-		authorCover.referrerPolicy = "no-referrer";
-		authorCover.crossOrigin = "anonymous";
-		authorCover.src = "https://api.cors.lol/?url=" + encodeURIComponent(author.image);
-
-		authorDiv.append(authorCover);
-		authorDiv.append(authorTitle);
-		this.scrollableContainer.insertBefore(authorDiv, this.saveId.nextSibling);
+		const div = this.createContainer(author, ["image", "id"], "Author");
+		const img = document.createElement("img");
+		img.className = "productimg";
+		img.referrerPolicy = "no-referrer";
+		img.crossOrigin = "anonymous";
+		img.src = "https://api.cors.lol/?url=" + encodeURIComponent(author.image);
+		div.insertBefore(img, div.firstChild);
 	}
 
 	setMedia(media) {
-		media.forEach((mediaData) => {
-			const contentDiv = document.createElement("div");
-			const contentTitle = document.createElement("p");
-			contentDiv.className = "container post";
-			contentTitle.className = "title";
-			//contentTitle.innerHTML = `<p class='key'>${mediaData.id}</p>`;
-
-			for (const key in mediaData) {
-				if (mediaData.hasOwnProperty(key) && key !== "is_video" && key !== "address" && key !== "cover" && key !== "id") {
-					const spanKey = document.createElement("span");
-					spanKey.innerHTML = `<a href='${mediaData.address}' download='${mediaData[key]}.${
-						mediaData.is_video ? "mp4" : "png"
-					}' class='key'>${key}: </a>`;
-					//  spanKey.className = 'key';
-					//  spanKey.textContent = key + ': ';
-
-					const spanValue = document.createElement("span");
-					spanValue.className = key;
-					spanValue.textContent = this.formatValue(mediaData[key]) + " ";
-
-					contentTitle.appendChild(spanKey);
-					contentTitle.appendChild(spanValue);
-				}
-			}
-
-			const isVideo = mediaData.is_video;
-			const mediaElement = isVideo ? document.createElement("video") : document.createElement("img");
-			mediaElement.className = "productimg";
-			mediaElement.referrerPolicy = "no-referrer";
-			mediaElement.crossOrigin = "anonymous";
-
-			mediaElement.controls = true;
-			mediaElement.src = "https://api.cors.lol/?url=" + encodeURIComponent(mediaData.address);
-
-			contentDiv.appendChild(mediaElement);
-			contentDiv.append(contentTitle);
-			this.scrollableContainer.insertBefore(contentDiv, saveId.nextSibling);
+		media.forEach((m) => {
+			const div = this.createContainer(m, ["is_video", "address", "cover", "id"]);
+			const el = m.is_video ? document.createElement("video") : document.createElement("img");
+			el.className = "productimg";
+			el.referrerPolicy = "no-referrer";
+			el.crossOrigin = "anonymous";
+			el.controls = true;
+			el.src = "https://api.cors.lol/?url=" + encodeURIComponent(m.address);
+			div.insertBefore(el, div.firstChild);
 		});
 	}
 }
 
 class FacebookContentManager {
-	constructor(scrollableContainer, saveId) {
-		this.scrollableContainer = scrollableContainer;
+	constructor(container, saveId) {
+		this.container = container;
 		this.saveId = saveId;
 	}
 
-	formatValue(value) {
-		return typeof value === "number"
-			? value >= 1e6
-				? (value / 1e6).toFixed(1) + "m"
-				: value >= 1e3
-				? (value / 1e3).toFixed(1) + "k"
-				: value
-			: value;
+	formatValue(v) {
+		return typeof v === "number" ? (v >= 1e6 ? (v / 1e6).toFixed(1) + "m" : v >= 1e3 ? (v / 1e3).toFixed(1) + "k" : v) : v;
+	}
+
+	createContainer(obj, exclude = [], titleText = "Item", mediaSrc = null, mediaType = "img", downloadAttr = null) {
+		const div = document.createElement("div");
+		const title = document.createElement("p");
+		div.className = "container post";
+		title.className = "title";
+		title.innerHTML = `<p class='key'>${titleText}:</p>`;
+
+		for (const key in obj) {
+			if (!exclude.includes(key) && obj.hasOwnProperty(key)) {
+				const spanKey = document.createElement("span");
+				spanKey.innerHTML = downloadAttr ? `<a href='${downloadAttr}' download class='key'>${key}: </a>` : key + ": ";
+				const spanValue = document.createElement("span");
+				spanValue.textContent = this.formatValue(obj[key]) + " ";
+				title.appendChild(spanKey);
+				title.appendChild(spanValue);
+			}
+		}
+
+		div.append(title);
+
+		if (mediaSrc) {
+			const media = mediaType === "video" ? document.createElement("video") : document.createElement("img");
+			media.className = "productimg";
+			media.referrerPolicy = "no-referrer";
+			media.crossOrigin = "anonymous";
+			if (mediaType === "video") media.controls = true;
+			media.src = mediaSrc;
+			div.insertBefore(media, title);
+		}
+
+		this.container.insertBefore(div, this.saveId.nextSibling);
+		return div;
 	}
 
 	setContent(content) {
-		const contentDiv = document.createElement("div");
-		const contentTitle = document.createElement("p");
-		const contentCover = document.createElement("img");
-		contentDiv.className = "container post";
-		contentTitle.className = "title";
-		contentCover.className = "productimg";
-
-		//contentTitle.innerHTML = "<p class='key'>Post:</p>";
-
-		for (const key in content) {
-			if (content.hasOwnProperty(key) && key !== "cover" && key !== "id") {
-				const spanKey = document.createElement("span");
-				spanKey.className = "key";
-				spanKey.textContent = key + ": ";
-
-				const spanValue = document.createElement("span");
-				spanValue.className = key;
-				spanValue.textContent = this.formatValue(content[key]) + " ";
-
-				contentTitle.appendChild(spanKey);
-				contentTitle.appendChild(spanValue);
-			}
-		}
-		contentCover.referrerPolicy = "no-referrer";
-		contentCover.crossOrigin = "anonymous";
-		contentCover.src = "https://api.cors.lol/?url=" + encodeURIComponent(content.cover);
-
-		contentDiv.append(contentCover);
-		contentDiv.append(contentTitle);
-		this.scrollableContainer.insertBefore(contentDiv, this.saveId.nextSibling);
+		this.createContainer(
+			content,
+			["cover", "id"],
+			"Post",
+			"https://api.cors.lol/?url=" + encodeURIComponent(content.cover),
+			"img",
+			content.cover
+		);
 	}
 
 	setAuthor(author) {
-		const authorDiv = document.createElement("div");
-		const authorTitle = document.createElement("p");
-		const authorCover = document.createElement("img");
-		authorDiv.className = "container post";
-		authorTitle.className = "title";
-		authorCover.className = "productimg";
-
-		authorTitle.innerHTML = "<p class='key'>Author:</p>";
-
-		for (const key in author) {
-			if (author.hasOwnProperty(key) && key !== "image") {
-				const spanKey = document.createElement("span");
-				spanKey.className = "key";
-				spanKey.textContent = key + ": ";
-
-				const spanValue = document.createElement("span");
-				spanValue.className = key;
-				spanValue.textContent = this.formatValue(author[key]) + " ";
-
-				authorTitle.appendChild(spanKey);
-				authorTitle.appendChild(spanValue);
-			}
-		}
-
-		authorCover.referrerPolicy = "no-referrer";
-		authorCover.crossOrigin = "anonymous";
-		authorCover.src = "/static/facebook.png";
-
-		authorDiv.append(authorCover);
-		authorDiv.append(authorTitle);
-		this.scrollableContainer.insertBefore(authorDiv, this.saveId.nextSibling);
+		this.createContainer(author, ["image"], "Author", "/static/facebook.png");
 	}
 
-	setMedia(media) {
-		media.forEach((mediaData) => {
-			const contentDiv = document.createElement("div");
-			const contentTitle = document.createElement("p");
-			contentDiv.className = "container post";
-			contentTitle.className = "title";
-			contentTitle.innerHTML = `<a href='${mediaData.address}' download='${mediaData.id}.${mediaData.is_video ? "mp4" : "png"}' class='key'>${
-				mediaData.id
-			}</a>`;
-
-			for (const key in mediaData) {
-				if (mediaData.hasOwnProperty(key) && key !== "is_video" && key !== "address" && key !== "cover") {
-					const spanKey = document.createElement("span");
-					spanKey.className = "key";
-					spanKey.textContent = key + ": ";
-
-					const spanValue = document.createElement("span");
-					spanValue.className = key;
-					spanValue.textContent = this.formatValue(mediaData[key]) + " ";
-
-					contentTitle.appendChild(spanKey);
-					contentTitle.appendChild(spanValue);
-				}
-			}
-
-			const isVideo = mediaData.is_video;
-			const mediaElement = isVideo ? document.createElement("video") : document.createElement("img");
-			mediaElement.className = "productimg";
-			mediaElement.referrerPolicy = "no-referrer";
-			mediaElement.crossOrigin = "anonymous";
-
-			if (isVideo) {
-				mediaElement.controls = true;
-				mediaElement.src = "https://api.cors.lol/?url=" + encodeURIComponent(mediaData.address);
-			} else {
-				mediaElement.src = "https://api.cors.lol/?url=" + encodeURIComponent(mediaData.address);
-			}
-
-			contentDiv.appendChild(mediaElement);
-			contentDiv.append(contentTitle);
-			this.scrollableContainer.insertBefore(contentDiv, saveId.nextSibling);
+	setMedia(mediaList) {
+		mediaList.forEach((m) => {
+			const isVideo = m.is_video;
+			const src = "https://api.cors.lol/?url=" + encodeURIComponent(m.address);
+			this.createContainer(m, ["is_video", "address", "cover"], m.id, src, isVideo ? "video" : "img", m.address);
 		});
 	}
 }
