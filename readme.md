@@ -66,16 +66,16 @@
 
 #### Tiktok https://devfemibadmus.blackstackhub.com/webmedia/api/?cut=-&url=https://www.tiktok.com/@devfemibadmus/video/7390912680883899654
 
-![TikTok](insta%20conf/image%20copy%206.png?raw=true)
+![TikTok](screenshot/image%20copy%206.png?raw=true)
 
 #### Instagram https://devfemibadmus.blackstackhub.com/webmedia/api/?cut=-&url=https://www.instagram.com/p/C-TMvc4yQh6/?img_index=3 (post has been deleted)
 
-![Instagram](insta%20conf/image%20copy%207.png?raw=true)
+![Instagram](screenshot/image%20copy%207.png?raw=true)
 
 #### Facebook https://devfemibadmus.blackstackhub.com/webmedia/api/?cut=-&url=https://www.facebook.com/share/v/qCRH3vKk2FbAEAUP/
 
-![Facebook](insta%20conf/image%20copy%208.png?raw=true)
+![Facebook](screenshot/image%20copy%208.png?raw=true)
 
-| Screenshot                                                                                                 | Screenshot                                                                                                 |
-| ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| ![post and video quality](<insta%20conf/screenshot/127.0.0.1_5000_(iPhone%2014%20Pro%20Max).png?raw=true>) | ![author and music](<insta%20conf/screenshot/127.0.0.1_5000_(iPhone%2014%20Pro%20Max)%20(1).png?raw=true>) |
+| Screenshot                                                                                    | Screenshot                                                                                    |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| ![post and video quality](<screenshot/127.0.0.1_5000_(iPhone%2014%20Pro%20Max).png?raw=true>) | ![author and music](<screenshot/127.0.0.1_5000_(iPhone%2014%20Pro%20Max)%20(1).png?raw=true>) |
