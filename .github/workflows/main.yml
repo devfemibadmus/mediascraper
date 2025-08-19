@@ -2,12 +2,13 @@ name: Test and Build
 
 on:
     push:
-        branches: [test]
+        branches: [test, build]
     pull_request:
         branches: [test]
 
 jobs:
     test:
+        if: github.ref == 'refs/heads/test'
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
@@ -18,7 +19,7 @@ jobs:
             - run: cargo test --verbose
 
     build:
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/build'
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
