@@ -1540,6 +1540,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2532096657941c2fea9c289d370a250971c689d4f143798ff67113ec042024a5"
 
 [[package]]
+name = "mediascraper"
+version = "0.1.0"
+dependencies = [
+ "actix-files",
+ "actix-web",
+ "futures",
+ "htmlescape",
+ "kuchiki",
+ "lol_html",
+ "regex",
+ "reqwest",
+ "scraper",
+ "serde",
+ "serde_json",
+ "tera",
+ "tokio",
+ "tokio-test",
+]
+
+[[package]]
 name = "memchr"
 version = "2.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3162,26 +3182,6 @@ dependencies = [
  "phf_codegen 0.11.3",
  "string_cache",
  "string_cache_codegen",
-]
-
-[[package]]
-name = "webmedia"
-version = "0.1.0"
-dependencies = [
- "actix-files",
- "actix-web",
- "futures",
- "htmlescape",
- "kuchiki",
- "lol_html",
- "regex",
- "reqwest",
- "scraper",
- "serde",
- "serde_json",
- "tera",
- "tokio",
- "tokio-test",
 ]
 
 [[package]]
