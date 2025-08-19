@@ -18,7 +18,7 @@
 
 ## :rocket: Apps
 
--   **Web**: [Web Media](https://mediasaver.link)
+-   **Web**: [Media Saver](https://mediasaver.link)
 
 -   **iOs App**: [Add to Home Screen](https://mediasaver.link/#app)
 
@@ -35,12 +35,12 @@
 
 -   **Mobile**: https://github.com/devfemibadmus/mediasaver
 
--   **Api**: https://github.com/devfemibadmus//webmedia
+-   **Api**: https://mediasaver.link/api/
 
 ## 📖 API Endpoint
 
 -   **Method**: `GET` or `POST`
--   **URL**: `https://mediasaver.link/api`
+-   **URL**: `https://mediasaver.link/api/`
 -   **Parameters**:
 -   `cut`: Optional
 -   `url`: Required
