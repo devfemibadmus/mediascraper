@@ -2,7 +2,7 @@ name: Test and Build
 
 on:
     push:
-        branches: [test, build]
+        branches: [test, main]
     pull_request:
         branches: [test]
 
@@ -19,7 +19,7 @@ jobs:
             - run: cargo test --verbose
 
     build:
-        if: github.ref == 'refs/heads/build'
+        if: github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
@@ -28,8 +28,8 @@ jobs:
                   toolchain: stable
                   override: true
             - run: cargo build --release
-            - run: mkdir -p release && cp target/release/webmedia release/
+            - run: mkdir -p release && cp target/release/mediascraper release/
             - uses: actions/upload-artifact@v4
               with:
-                  name: webmedia-release
+                  name: mediascraper-release
                   path: release/
