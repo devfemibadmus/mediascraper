@@ -5,8 +5,10 @@ edition = "2024"
 
 [dependencies]
 actix-files = "0.6.6"
+actix-multipart = "0.7.2"
 actix-web = "4.11.0"
 futures = "0.3.31"
+futures-util = "0.3.31"
 htmlescape = "0.3.1"
 kuchiki = "0.8.1"
 lol_html = "2.6.0"
