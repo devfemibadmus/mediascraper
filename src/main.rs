@@ -37,7 +37,7 @@ impl Validator {
     }
 }
 
-#[route("/api", method = "GET", method = "POST")]
+#[route("/api/", method = "GET", method = "POST")]
 async fn api_handler(
         client: web::Data<reqwest::Client>, 
         form: Option<web::Form<std::collections::HashMap<String, String>>>, 
