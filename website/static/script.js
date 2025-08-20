@@ -1,10 +1,3 @@
-/*
- *************************************
- * For any modifications,
- * please contact the nigga (devfemibadmus@gmail.com).
- *************************************
- */
-
 let isAbout = true;
 let navLink = document.getElementById("nav-privacy");
 
@@ -87,11 +80,9 @@ class TikTokContentManager {
 		this.container = container;
 		this.saveId = saveId;
 	}
-
 	formatValue(v) {
 		return typeof v === "number" ? (v >= 1e6 ? (v / 1e6).toFixed(1) + "m" : v >= 1e3 ? (v / 1e3).toFixed(1) + "k" : v) : v || "N/A";
 	}
-
 	createContainer(obj, exclude = [], titleText = "Item", mediaSrc = null, mediaType = "img", downloadAttr = null) {
 		const div = document.createElement("div");
 		const title = document.createElement("p");
@@ -124,19 +115,15 @@ class TikTokContentManager {
 		this.container.insertBefore(div, this.saveId.nextSibling);
 		return div;
 	}
-
 	setContent(content) {
 		this.createContainer(content, ["cover", "id"], "Post", content.cover, "img", content.cover);
 	}
-
 	setAuthor(author) {
 		this.createContainer(author, ["image", "id"], "Author", author.image);
 	}
-
 	setMusic(music) {
 		this.createContainer(music, ["src", "cover"], "Music", music.cover, "img", music.src);
 	}
-
 	setMedia(datas) {
 		const mediaList = datas.videos ?? datas.images;
 		mediaList.forEach((m) => {
@@ -156,11 +143,9 @@ class InstagramContentManager {
 		this.container = container;
 		this.saveId = saveId;
 	}
-
 	formatValue(v) {
 		return typeof v === "number" ? (v >= 1e6 ? (v / 1e6).toFixed(1) + "m" : v >= 1e3 ? (v / 1e3).toFixed(1) + "k" : v) : v;
 	}
-
 	createContainer(obj, excludeKeys = [], mediaKey = null) {
 		const div = document.createElement("div");
 		const title = document.createElement("p");
@@ -187,7 +172,6 @@ class InstagramContentManager {
 		this.container.insertBefore(div, this.saveId.nextSibling);
 		return div;
 	}
-
 	setContent(content) {
 		const div = this.createContainer(content, ["cover", "id"], "Post");
 		const img = document.createElement("img");
@@ -197,7 +181,6 @@ class InstagramContentManager {
 		img.src = "https://api.cors.lol/?url=" + encodeURIComponent(content.cover);
 		div.insertBefore(img, div.firstChild);
 	}
-
 	setAuthor(author) {
 		const div = this.createContainer(author, ["image", "id"], "Author");
 		const img = document.createElement("img");
@@ -207,7 +190,6 @@ class InstagramContentManager {
 		img.src = "https://api.cors.lol/?url=" + encodeURIComponent(author.image);
 		div.insertBefore(img, div.firstChild);
 	}
-
 	setMedia(media) {
 		media.forEach((m) => {
 			const div = this.createContainer(m, ["is_video", "address", "cover", "id"]);
@@ -227,11 +209,9 @@ class FacebookContentManager {
 		this.container = container;
 		this.saveId = saveId;
 	}
-
 	formatValue(v) {
 		return typeof v === "number" ? (v >= 1e6 ? (v / 1e6).toFixed(1) + "m" : v >= 1e3 ? (v / 1e3).toFixed(1) + "k" : v) : v;
 	}
-
 	createContainer(obj, exclude = [], titleText = "Item", mediaSrc = null, mediaType = "img", downloadAttr = null) {
 		const div = document.createElement("div");
 		const title = document.createElement("p");
@@ -265,7 +245,6 @@ class FacebookContentManager {
 		this.container.insertBefore(div, this.saveId.nextSibling);
 		return div;
 	}
-
 	setContent(content) {
 		this.createContainer(
 			content,
@@ -276,11 +255,9 @@ class FacebookContentManager {
 			content.cover
 		);
 	}
-
 	setAuthor(author) {
 		this.createContainer(author, ["image"], "Author", "/static/facebook.png");
 	}
-
 	setMedia(mediaList) {
 		mediaList.forEach((m) => {
 			const isVideo = m.is_video;
@@ -358,10 +335,3 @@ document.addEventListener("click", function (e) {
 			});
 	}
 });
-
-/*
- *************************************
- * For any modifications,
- * please contact the nigga (devfemibadmus@gmail.com).
- *************************************
- */
