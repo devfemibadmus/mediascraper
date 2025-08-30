@@ -39,14 +39,16 @@ impl Validator {
     }
 }
 
-#[route("/api/", method = "GET", method = "POST")]
-async fn api_handler(client: web::Data<reqwest::Client>, body: web::Bytes,) -> impl Responder {
-    let json: HashMap<String, Value> = serde_json::from_slice(&body).unwrap_or_default();
-    // println!("json: {:?}", json);
-    // println!("json: {:?}", body);
 
-    let url = json.get("url").and_then(|v| v.as_str());
-    let cut = json.get("cut").and_then(|v| v.as_bool()).unwrap_or(false);
+#[route("/api/", method = "GET", method = "POST")]
+async fn api_handler(client: web::Data<reqwest::Client>, body: web::Bytes,
+    query: web::Query<HashMap<String, String>>,) -> impl Responder {
+    let json: HashMap<String, Value> = serde_json::from_slice(&body).unwrap_or_default();
+    
+    let cut = json.get("cut").is_some() || query.get("cut").is_some();
+    let json: HashMap<String, Value> = serde_json::from_slice(&body).unwrap_or_default();
+    let url = json.get("url").and_then(|v| v.as_str()).or_else(|| query.get("url").map(|s| s.as_str()));
+
 
     if url.is_none() {
         return HttpResponse::BadRequest().json(ApiResponse::<()>{
