@@ -63,15 +63,15 @@
 }
 ```
 
-#### Tiktok https://devfemibadmus.blackstackhub.com/mediascraper/api/?cut=-&url=https://www.tiktok.com/@devfemibadmus/video/7390912680883899654
+#### Tiktok https://mediasaver.link/api/?cut=-&url=https://www.tiktok.com/@devfemibadmus/video/7390912680883899654
 
 ![TikTok](screenshot/image%20copy%206.png?raw=true)
 
-#### Instagram https://devfemibadmus.blackstackhub.com/mediascraper/api/?cut=-&url=https://www.instagram.com/p/C-TMvc4yQh6/?img_index=3 (post has been deleted)
+#### Instagram https://mediasaver.link/api/?cut=-&url=https://www.instagram.com/p/C-TMvc4yQh6/?img_index=3 (post has been deleted)
 
 ![Instagram](screenshot/image%20copy%207.png?raw=true)
 
-#### Facebook https://devfemibadmus.blackstackhub.com/mediascraper/api/?cut=-&url=https://www.facebook.com/share/v/qCRH3vKk2FbAEAUP/
+#### Facebook https://mediasaver.link/api/?cut=-&url=https://www.facebook.com/share/v/qCRH3vKk2FbAEAUP/
 
 ![Facebook](screenshot/image%20copy%208.png?raw=true)
 
