@@ -41,8 +41,7 @@ impl Validator {
 
 
 #[route("/api/", method = "GET", method = "POST")]
-async fn api_handler(client: web::Data<reqwest::Client>, body: web::Bytes,
-    query: web::Query<HashMap<String, String>>,) -> impl Responder {
+async fn api_handler(client: web::Data<reqwest::Client>, body: web::Bytes, query: web::Query<HashMap<String, String>>,) -> impl Responder {
     let json: HashMap<String, Value> = serde_json::from_slice(&body).unwrap_or_default();
     
     let cut = json.get("cut").is_some() || query.get("cut").is_some();
