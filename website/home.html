@@ -604,7 +604,7 @@
 				splitMediaNotice.classList.add("hidden");
 
 				try {
-					const response = await fetch(`http://localhost:8000/api/?url=${encodeURIComponent(url)}`);
+					const response = await fetch(`/api/?url=${encodeURIComponent(url)}`);
 					const result = await response.json();
 
 					if (response.ok && !result.error) {

@@ -108,30 +108,18 @@ impl Facebook {
         }
         if self.url.contains("/share") {
             if let Ok(resp) = self.get(&self.url).await {
-                print!("{}", resp.url());
-                if let Some(id) = resp
-                    .url()
-                    .as_str()
-                    .rsplit('/')
-                    .find(|s| s.chars().all(char::is_numeric))
-                {
-                    self.url = format!("https://www.facebook.com/reel/{}", id);
-                } else {
-                    return Err("video not found".into());
+                let final_url = resp.url().to_string();
+                if let Some(query) = final_url.split("?next=").nth(1) {
+                    let decoded = urlencoding::decode(query).unwrap();
+                    self.url = decoded
+                        .replace("www.facebook.com", "m.facebook.com")
+                        .split("&share_url")
+                        .next()
+                        .unwrap();
+                    println!("{}", self.url);
                 }
-            } else {
-                return Err("video request failed".into());
             }
         }
-        // let resp1 = self
-        //     .get(&self.url)
-        //     .await
-        //     .map_err(|e| format!("Request error: {}", e))?;
-        print!("{}", self.url);
-        // if resp1.status() != 200 {
-        //     return Err(format!("Failed to fetch page: {}", resp1.status()));
-        // }
-        // let final_url = resp1.url().to_string();
         let resp = self
             .get(&self.url)
             .await
