@@ -108,7 +108,7 @@ impl Facebook {
         }
         if self.url.contains("/share") {
             if let Ok(resp) = self.get(&self.url).await {
-                print!("{}".resp.url());
+                print!("{}", resp.url());
                 if let Some(id) = resp
                     .url()
                     .as_str()
