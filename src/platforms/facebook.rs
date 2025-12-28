@@ -297,10 +297,7 @@ impl Facebook {
 #[tokio::test]
 async fn facebook() {
     let client = reqwest::Client::new();
-    let mut scraper = Facebook::new(
-        client,
-        "https://www.facebook.com/share/r/16uWZfpj6y/?mibextid=wwXIfr",
-    );
+    let mut scraper = Facebook::new(client, "https://www.facebook.com/share/r/16uWZfpj6y/");
     let response = scraper.get_data().await;
     let status = response.status();
     println!("Status: {}", status);
