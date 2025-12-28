@@ -107,7 +107,9 @@ impl Facebook {
             }
         }
         let resp1 = self
+            .client
             .get(&self.url)
+            .send()
             .await
             .map_err(|e| format!("Request error: {}", e))?;
         if resp1.status() != 200 {
