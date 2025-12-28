@@ -91,21 +91,31 @@ impl Facebook {
     }
 
     async fn fetch_json(&mut self) -> Result<Value, String> {
-        if let Ok(resp) = self.get(&self.url).await {
-            if let Some(video_id) = resp
-                .url()
-                .path_segments()
-                .and_then(|segments| segments.skip_while(|s| *s != "videos").nth(1))
-            {
-                self.url = format!("https://www.facebook.com/reel/{}", video_id);
+        if self.url.contains("fb.watch") || self.url.contains("/watch/?v") {
+            if let Ok(resp) = self.get(&self.url).await {
+                if let Some(video_id) = resp
+                    .url()
+                    .path_segments()
+                    .and_then(|segments| segments.skip_while(|s| *s != "videos").nth(1))
+                {
+                    self.url = format!("https://www.facebook.com/reel/{}", video_id);
+                } else {
+                    return Err("video not found".into());
+                }
             } else {
-                return Err("video not found".into());
+                return Err("video request failed".into());
             }
-        } else {
-            return Err("video request failed".into());
         }
-        let resp = self
+        let resp1 = self
             .get(&self.url)
+            .await
+            .map_err(|e| format!("Request error: {}", e))?;
+        if resp1.status() != 200 {
+            return Err(format!("Failed to fetch page: {}", resp1.status()));
+        }
+        let final_url = resp1.url().to_string();
+        let resp = self
+            .get(&final_url)
             .await
             .map_err(|e| format!("Request error: {}", e))?;
         if resp.status() != 200 {
