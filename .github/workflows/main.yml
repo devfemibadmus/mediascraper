@@ -1,0 +1,25 @@
+# @format
+
+name: Test and Build
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    test_and_build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions-rs/toolchain@v1
+              with:
+                  toolchain: stable
+                  override: true
+            - run: cargo test --verbose
+            - run: cargo build --release
+            - run: mkdir -p release && cp target/release/mediascraper release/
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: mediascraper-release
+                  path: release/
+                  retention-days: 1
