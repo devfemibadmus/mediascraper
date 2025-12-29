@@ -613,7 +613,7 @@
 						throw new Error(result.message || result.error_message || "COULD NOT FETCH CONTENT FROM THIS LINK.");
 					}
 				} catch (err) {
-					errorText.textContent = err.message || "CHECK YOUR LOCAL API SERVICE (PORT 8000).";
+					errorText.textContent = err.message || "CHECK YOUR LOCAL API SERVICE (PORT 8080).";
 					errorBox.classList.remove("hidden");
 				} finally {
 					fetchBtn.disabled = false;
