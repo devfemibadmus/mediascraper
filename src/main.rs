@@ -17,7 +17,7 @@ impl Validator {
         let patterns = [
             (r"tiktok\.com/.*/", "TikTok"),
             (
-                r"instagram\.com/(p|reel|tv)/([A-Za-z0-9_-]+)/?",
+                r"instagram\.com/(p|reel|reels|tv)/([A-Za-z0-9_-]+)/?",
                 "Instagram",
             ),
             (r"(facebook\.com/.*/|fb\.watch/.*/)", "Facebook"),
