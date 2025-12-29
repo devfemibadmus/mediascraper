@@ -21,7 +21,9 @@ async fn static_handler(path: web::Path<String>) -> impl Responder {
         let body = file.data.into_owned();
         let mime = mime_guess::from_path(file_path).first_or_octet_stream();
         HttpResponse::Ok()
-            .content_type(ContentType::from(mime))
+            .content_type(ContentType::from(actix_web::http::header::ContentType(
+                mime,
+            )))
             .body(body)
     } else {
         HttpResponse::NotFound().body("not found")
