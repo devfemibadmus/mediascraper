@@ -78,33 +78,38 @@ async fn api_handler(
     let platform = Validator::validate(url);
 
     match platform {
-        "Facebook" => {
-            let mut fb = Facebook::new(
-                client.get_ref().clone(),
-                &url.replace("web.facebook", "www.facebook"),
-            );
-            fb.get_data().await
-        }
-        "Instagram" => {
-            let insta = Instagram::new(client.get_ref().clone(), url.to_string());
-            insta.get_data().await
-        }
-        "TikTok" => {
-            let tiktok = TikTok::new(client.get_ref().clone(), url.to_string());
-            tiktok.get_data().await
-        }
-        "Snapchat" => {
-            let snap = Snapchat::new(client.get_ref().clone(), url.to_string());
-            snap.get_data().await
-        }
-        "Twitter" => {
-            let twitter = Twitter::new(client.get_ref().clone(), url.to_string());
-            twitter.get_data().await
-        }
-        _ => HttpResponse::BadRequest().json(serde_json::json!({
-            "error": true,
-            "message": "Unsupported URL",
-            "error_message": "Unsupported URL"
+        // "Facebook" => {
+        //     let mut fb = Facebook::new(
+        //         client.get_ref().clone(),
+        //         &url.replace("web.facebook", "www.facebook"),
+        //     );
+        //     fb.get_data().await
+        // }
+        // "Instagram" => {
+        //     let insta = Instagram::new(client.get_ref().clone(), url.to_string());
+        //     insta.get_data().await
+        // }
+        // "TikTok" => {
+        //     let tiktok = TikTok::new(client.get_ref().clone(), url.to_string());
+        //     tiktok.get_data().await
+        // }
+        // "Snapchat" => {
+        //     let snap = Snapchat::new(client.get_ref().clone(), url.to_string());
+        //     snap.get_data().await
+        // }
+        // "Twitter" => {
+        //     let twitter = Twitter::new(client.get_ref().clone(), url.to_string());
+        //     twitter.get_data().await
+        // }
+        // _ => HttpResponse::BadRequest().json(serde_json::json!({
+        //     "error": true,
+        //     "message": "Unsupported URL",
+        //     "error_message": "Unsupported URL"
+        // })),
+        _ => HttpResponse::Ok().json(serde_json::json!({
+            "data": [],
+            "total": 0,
+            "platform": "404"
         })),
     }
 }
