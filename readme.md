@@ -2,7 +2,7 @@
 
 # MEDIASCRAPER API
 
-[![Rust](https://img.shields.io/badge/Rust-1.70+-orange?logo=rust)](https://www.rust-lang.org/) [![Actix Web](https://img.shields.io/badge/Actix%20Web-4.0+-blue)](https://actix.rs/) [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Google Play](https://img.shields.io/badge/Google%20Play-Download-brightgreen?logo=google-play)](https://play.google.com/store/apps/details?id=com.blackstackhub.mediasaver) ![Views](https://komarev.com/ghpvc/?username=devfemibadmus&repo=mediascraper&color=blue)
+[![Rust](https://img.shields.io/badge/Rust-1.89+-orange?logo=rust)](https://www.rust-lang.org/) [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Google Play](https://img.shields.io/badge/Google%20Play-Download-brightgreen?logo=google-play)](https://play.google.com/store/apps/details?id=com.blackstackhub.mediasaver) ![Views](https://komarev.com/ghpvc/?username=devfemibadmus&repo=mediascraper&color=blue)
 
 ## 📋 Overview
 
