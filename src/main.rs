@@ -1,14 +1,18 @@
 use actix_cors::Cors;
-use actix_files::Files;
 use actix_web::{App, HttpResponse, HttpServer, Responder, get, route, web};
 use regex::Regex;
+use rust_embed::RustEmbed;
 use std::collections::HashMap;
-use tera::Tera;
+use tera::{Context, Tera};
 
 mod platforms;
 use platforms::{
     facebook::Facebook, instagram::Instagram, snapchat::Snapchat, tiktok::TikTok, twitter::Twitter,
 };
+
+#[derive(RustEmbed)]
+#[folder = "website/"]
+struct Asset;
 
 struct Validator;
 
@@ -24,14 +28,11 @@ impl Validator {
             (r"snapchat\.com/t/", "Snapchat"),
             (r"(twitter\.com/|x\.com/).*/status/", "Twitter"),
         ];
-
         for (pattern, platform) in patterns.iter() {
-            let re = Regex::new(pattern).unwrap();
-            if re.is_match(url) {
+            if Regex::new(pattern).unwrap().is_match(url) {
                 return platform;
             }
         }
-
         "Invalid URL"
     }
 }
@@ -93,24 +94,24 @@ async fn api_handler(
 }
 
 #[get("/")]
-async fn home(tmpl: web::Data<Tera>) -> impl Responder {
-    let ctx = tera::Context::new();
-    match tmpl.render("home.html", &ctx) {
-        Ok(rendered) => HttpResponse::Ok().body(rendered),
-        Err(_) => HttpResponse::InternalServerError().body("Template error"),
+async fn home() -> impl Responder {
+    let ctx = Context::new();
+    if let Some(template) = Asset::get("home.html") {
+        let rendered = Tera::one_off(
+            std::str::from_utf8(template.data.as_ref()).unwrap(),
+            &ctx,
+            true,
+        )
+        .unwrap();
+        HttpResponse::Ok().body(rendered)
+    } else {
+        HttpResponse::InternalServerError().body("Template not found")
     }
 }
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let client = reqwest::Client::new();
-    let tera = match Tera::new("website/*.html") {
-        Ok(t) => t,
-        Err(e) => {
-            eprintln!("Template error: {}", e);
-            return Ok(());
-        }
-    };
 
     HttpServer::new(move || {
         App::new()
@@ -123,8 +124,6 @@ async fn main() -> std::io::Result<()> {
             )
             .service(home)
             .service(api_handler)
-            .service(Files::new("/static", "website/static").show_files_listing())
-            .app_data(web::Data::new(tera.clone()))
             .app_data(web::Data::new(client.clone()))
     })
     .bind(("127.0.0.1", 8080))?
