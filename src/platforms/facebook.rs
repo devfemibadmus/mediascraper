@@ -106,22 +106,6 @@ impl Facebook {
                 return Err("video request failed".into());
             }
         }
-        if self.url.contains("/share") {
-            if let Ok(resp) = self.get(&self.url).await {
-                let final_url = resp.url().to_string();
-                if let Some(query) = final_url.split("?next=").nth(1) {
-                    let decoded = urlencoding::decode(query).unwrap().into_owned();
-                    let story_url_part = decoded.replace("www.facebook.com", "m.facebook.com");
-                    let story_url = story_url_part
-                        .split("&share_url")
-                        .next()
-                        .unwrap()
-                        .to_string();
-                    println!("{}", story_url);
-                    self.url = story_url;
-                }
-            }
-        }
 
         let resp = self
             .get(&self.url)
@@ -204,7 +188,7 @@ impl Facebook {
             }
         }
 
-        Err("No valid JSON script found".into())
+        Err("Video not visible. Open it in Reels and share the link again.".into())
     }
 
     fn err(&self, message: &str, error_message: &str) -> Value {
@@ -288,7 +272,10 @@ impl Facebook {
 #[tokio::test]
 async fn facebook() {
     let client = reqwest::Client::new();
-    let mut scraper = Facebook::new(client, "https://www.facebook.com/share/r/16uWZfpj6y/");
+    let mut scraper = Facebook::new(
+        client,
+        "https://www.facebook.com/share/r/1AjofSWZsn/?mibextid=wwXIfr",
+    );
     let response = scraper.get_data().await;
     let status = response.status();
     println!("Status: {}", status);
