@@ -1,8 +1,8 @@
-use reqwest::Client;
-use serde_json::{json, Value};
-use scraper::{Html, Selector};
-use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, ACCEPT_LANGUAGE, USER_AGENT};
 use actix_web::{HttpResponse, http::StatusCode};
+use reqwest::Client;
+use reqwest::header::{ACCEPT, ACCEPT_LANGUAGE, HeaderMap, HeaderValue, USER_AGENT};
+use scraper::{Html, Selector};
+use serde_json::{Value, json};
 
 pub struct Snapchat {
     client: Client,
@@ -17,15 +17,25 @@ impl Snapchat {
     fn headers() -> HeaderMap {
         let mut headers = HeaderMap::new();
         headers.insert(USER_AGENT, HeaderValue::from_static("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"));
-        headers.insert(ACCEPT, HeaderValue::from_static("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"));
+        headers.insert(
+            ACCEPT,
+            HeaderValue::from_static(
+                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            ),
+        );
         headers.insert(ACCEPT_LANGUAGE, HeaderValue::from_static("en-US,en;q=0.9"));
-        headers.insert("Referer", HeaderValue::from_static("https://www.snapchat.com/"));
+        headers.insert(
+            "Referer",
+            HeaderValue::from_static("https://www.snapchat.com/"),
+        );
         headers.insert("Connection", HeaderValue::from_static("keep-alive"));
         headers
     }
 
     pub async fn get_data(&self) -> HttpResponse {
-        let resp = match self.client.get(&self.url)
+        let resp = match self
+            .client
+            .get(&self.url)
             .headers(Self::headers())
             .send()
             .await
@@ -47,7 +57,7 @@ impl Snapchat {
 
         let document = Html::parse_document(&html);
         let selector = Selector::parse("script#__NEXT_DATA__").unwrap();
-        
+
         let script = match document.select(&selector).next() {
             Some(s) => s.inner_html(),
             None => {
@@ -64,7 +74,8 @@ impl Snapchat {
             }
         };
 
-        let snap_list = match data.get("props")
+        let snap_list = match data
+            .get("props")
             .and_then(|p| p.get("pageProps"))
             .and_then(|pp| pp.get("story").or_else(|| pp.get("highlight")))
             .and_then(|s| s.get("snapList"))
@@ -79,14 +90,16 @@ impl Snapchat {
 
         let mut out = Vec::new();
         for snap in snap_list {
-            let preview = snap.get("snapUrls")
+            let preview = snap
+                .get("snapUrls")
                 .and_then(|u| u.get("mediaPreviewUrl"))
                 .and_then(|p| p.get("value"))
                 .and_then(|v| v.as_str())
                 .unwrap_or("")
                 .to_string();
 
-            let media = snap.get("snapUrls")
+            let media = snap
+                .get("snapUrls")
                 .and_then(|u| u.get("mediaUrl"))
                 .and_then(|m| m.as_str())
                 .unwrap_or("")
@@ -109,13 +122,14 @@ impl Snapchat {
 #[tokio::test]
 async fn snapchat() {
     let client = reqwest::Client::new();
-    let scraper = Snapchat::new(client, "https://snapchat.com/t/GJbX4HdO".to_string());
+    let scraper = Snapchat::new(client, "https://snapchat.com/t/3gnzD0Co".to_string());
     let response = scraper.get_data().await;
     let status = response.status();
     println!("Status: {}", status);
-    let body_bytes = actix_web::body::to_bytes(response.into_body()).await.unwrap();
+    let body_bytes = actix_web::body::to_bytes(response.into_body())
+        .await
+        .unwrap();
     let body_str = String::from_utf8(body_bytes.to_vec()).unwrap();
     println!("Body: {}", body_str);
     assert_eq!(status, StatusCode::OK);
 }
-
