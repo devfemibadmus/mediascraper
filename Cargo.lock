@@ -1292,6 +1292,7 @@ dependencies = [
  "actix-cors",
  "actix-files",
  "actix-web",
+ "mime_guess",
  "regex",
  "reqwest",
  "rust-embed",

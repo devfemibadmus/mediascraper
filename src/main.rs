@@ -1,4 +1,5 @@
 use actix_cors::Cors;
+use actix_web::http::header::ContentType;
 use actix_web::{App, HttpResponse, HttpServer, Responder, get, route, web};
 use regex::Regex;
 use rust_embed::RustEmbed;
@@ -13,6 +14,19 @@ use platforms::{
 #[derive(RustEmbed)]
 #[folder = "website/"]
 struct Asset;
+
+async fn static_handler(path: web::Path<String>) -> impl Responder {
+    let file_path = format!("static/{}", path.into_inner());
+    if let Some(file) = Asset::get(&file_path) {
+        let body = file.data.into_owned();
+        let mime = mime_guess::from_path(file_path).first_or_octet_stream();
+        HttpResponse::Ok()
+            .content_type(ContentType::from(mime))
+            .body(body)
+    } else {
+        HttpResponse::NotFound().body("not found")
+    }
+}
 
 struct Validator;
 
@@ -124,6 +138,7 @@ async fn main() -> std::io::Result<()> {
             )
             .service(home)
             .service(api_handler)
+            .route("/static/{_:.*}", web::get().to(static_handler))
             .app_data(web::Data::new(client.clone()))
     })
     .bind(("127.0.0.1", 8080))?

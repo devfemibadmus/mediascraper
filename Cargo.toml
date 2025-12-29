@@ -7,6 +7,7 @@ edition = "2024"
 actix-cors = "0.7.1"
 actix-files = "0.6.9"
 actix-web = "4.12.1"
+mime_guess = "2.0.5"
 regex = "1.12.2"
 reqwest = {version="0.12.28", features = ["blocking", "json"]}
 rust-embed = "8.9.0"
