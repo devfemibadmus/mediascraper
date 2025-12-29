@@ -79,6 +79,17 @@ impl Snapchat {
             .and_then(|p| p.get("pageProps"))
             .and_then(|pp| pp.get("story").or_else(|| pp.get("highlight")))
             .and_then(|s| s.get("snapList"))
+            .or_else(|| {
+                data.get("props")
+                    .and_then(|p| p.get("pageProps"))
+                    .and_then(|pp| pp.get("spotlightFeed"))
+                    .and_then(|sf| {
+                        sf.get("spotlightStories")
+                            .and_then(|ss| ss.get(0))
+                            .and_then(|st| st.get("story"))
+                            .and_then(|s| s.get("snapList"))
+                    })
+            })
             .and_then(|sl| sl.as_array())
         {
             Some(sl) => sl,
