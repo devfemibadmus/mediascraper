@@ -1,13 +1,13 @@
 # @format
 
-name: Deploy to VPS
+name: Build and Deploy
 
 on:
     push:
         branches: [main]
 
 jobs:
-    test-and-build:
+    build-and-deploy:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
@@ -28,22 +28,28 @@ jobs:
                       target
                   key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-            - name: Build
-              run: cargo build --release --verbose
+            - name: Build release binary
+              run: cargo build --release
 
             - name: Run tests
-              run: cargo test --verbose
+              run: cargo test
 
-            - name: Deploy to VPS
-              if: success()
+            - name: Upload binary to VPS
+              uses: appleboy/scp-action@v0.1.4
+              with:
+                  host: ${{ secrets.VPS_HOST }}
+                  username: ${{ secrets.VPS_USER }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  source: "target/release/mediascraper"
+                  target: ${{ secrets.VPS_APP_PATH }}
+
+            - name: Restart service on VPS
               uses: appleboy/ssh-action@v0.1.5
               with:
                   host: ${{ secrets.VPS_HOST }}
                   username: ${{ secrets.VPS_USER }}
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
                   script: |
-                      export PATH="$HOME/.cargo/bin:$PATH"
-                      cd /home/mediascraper/mediascraper
-                      git pull origin main
-                      cargo build --release
+                      chmod +x ${{ secrets.VPS_APP_PATH }}/mediascraper
                       sudo systemctl restart mediascraper
+                      echo "Deployment complete!"
