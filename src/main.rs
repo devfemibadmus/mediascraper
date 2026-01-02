@@ -34,6 +34,11 @@ struct Validator;
 
 impl Validator {
     fn validate(url: &str) -> &'static str {
+        let url = if url.ends_with('/') {
+            url.to_string()
+        } else {
+            format!("{}/", url)
+        };
         let patterns = [
             (r"tiktok\.com/.*/", "TikTok"),
             (
@@ -45,7 +50,7 @@ impl Validator {
             (r"(twitter\.com/|x\.com/).*/status/", "Twitter"),
         ];
         for (pattern, platform) in patterns.iter() {
-            if Regex::new(pattern).unwrap().is_match(url) {
+            if Regex::new(pattern).unwrap().is_match(&url) {
                 return platform;
             }
         }
