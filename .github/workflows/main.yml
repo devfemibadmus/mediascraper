@@ -51,6 +51,6 @@ jobs:
                   username: ${{ secrets.VPS_USER }}
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
                   script: |
-                      chmod +x "/home/mediascraper/mediascraper"
+                      chmod +x "/home/mediascraper/target/release/mediascraper"
                       sudo systemctl restart mediascraper
                       echo "Deployment complete!"
