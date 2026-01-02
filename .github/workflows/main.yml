@@ -1,25 +1,49 @@
 # @format
 
-name: Test and Build
+name: Deploy to VPS
 
 on:
     push:
         branches: [main]
 
 jobs:
-    test_and_build:
+    test-and-build:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
-            - uses: actions-rs/toolchain@v1
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Setup Rust
+              uses: actions-rs/toolchain@v1
               with:
                   toolchain: stable
                   override: true
-            - run: cargo test --verbose
-            - run: cargo build --release
-            - run: mkdir -p release && cp target/release/mediascraper release/
-            - uses: actions/upload-artifact@v4
+
+            - name: Cache dependencies
+              uses: actions/cache@v3
               with:
-                  name: mediascraper-release
-                  path: release/
-                  retention-days: 1
+                  path: |
+                      ~/.cargo/registry
+                      ~/.cargo/git
+                      target
+                  key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+            - name: Build
+              run: cargo build --release --verbose
+
+            - name: Run tests
+              run: cargo test --verbose
+
+            - name: Deploy to VPS
+              if: success()
+              uses: appleboy/ssh-action@v0.1.5
+              with:
+                  host: ${{ secrets.VPS_HOST }}
+                  username: ${{ secrets.VPS_USER }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  script: |
+                      export PATH="$HOME/.cargo/bin:$PATH"
+                      cd /home/mediascraper
+                      git pull origin main
+                      cargo build --release
+                      sudo systemctl restart mediascraper
