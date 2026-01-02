@@ -1,7 +1,7 @@
 set -e
 
 echo "Starting deployment..."
-cd /home/mediascraper
+cd /home/mediascraper/mediascraper
 echo "Pulling latest code..."
 git pull origin main
 echo "Building..."

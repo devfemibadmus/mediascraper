@@ -43,7 +43,7 @@ jobs:
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
                   script: |
                       export PATH="$HOME/.cargo/bin:$PATH"
-                      cd /home/mediascraper
+                      cd /home/mediascraper/mediascraper
                       git pull origin main
                       cargo build --release
                       sudo systemctl restart mediascraper
