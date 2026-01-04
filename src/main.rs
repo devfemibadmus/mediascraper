@@ -129,7 +129,9 @@ async fn home() -> impl Responder {
             true,
         )
         .unwrap();
-        HttpResponse::Ok().body(rendered)
+        HttpResponse::Ok()
+            .content_type("text/html; charset=utf-8")
+            .body(rendered)
     } else {
         HttpResponse::InternalServerError().body("Template not found")
     }
