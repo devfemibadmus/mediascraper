@@ -1,6 +1,6 @@
 use actix_cors::Cors;
 use actix_web::http::header::ContentType;
-use actix_web::{App, HttpResponse, HttpServer, Responder, get, route, web};
+use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, get, route, web};
 use regex::Regex;
 use rust_embed::RustEmbed;
 use std::collections::HashMap;
@@ -60,10 +60,30 @@ impl Validator {
 
 #[route("/api/", method = "GET", method = "POST")]
 async fn api_handler(
+    req: HttpRequest,
     client: web::Data<reqwest::Client>,
     body: web::Bytes,
     query: web::Query<HashMap<String, String>>,
 ) -> impl Responder {
+    let user_agent = req
+        .headers()
+        .get("User-Agent")
+        .and_then(|value| value.to_str().ok())
+        .unwrap_or("")
+        .to_lowercase();
+
+    let is_apple_request = ["iphone", "ipad", "ipod", "ios", "macintosh", "mac os"]
+        .iter()
+        .any(|token| user_agent.contains(token));
+
+    if is_apple_request {
+        return HttpResponse::BadRequest().json(serde_json::json!({
+            "error": true,
+            "message": "Unsupported URL",
+            "error_message": "Unsupported URL"
+        }));
+    }
+
     let json: HashMap<String, serde_json::Value> =
         serde_json::from_slice(&body).unwrap_or_default();
     let url = json
