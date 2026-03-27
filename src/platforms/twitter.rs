@@ -1,7 +1,7 @@
-use reqwest::Client;
-use serde_json::{json, Value};
 use actix_web::{HttpResponse, http::StatusCode};
-use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, ACCEPT_LANGUAGE, USER_AGENT};
+use reqwest::Client;
+use reqwest::header::{ACCEPT, ACCEPT_LANGUAGE, HeaderMap, HeaderValue, USER_AGENT};
+use serde_json::{Value, json};
 
 pub struct Twitter {
     client: Client,
@@ -14,7 +14,9 @@ impl Twitter {
     }
 
     fn extract_tweet_id(url: &str) -> Option<&str> {
-        url.split("/status/").nth(1).and_then(|s| s.split('?').next())
+        url.split("/status/")
+            .nth(1)
+            .and_then(|s| s.split('?').next())
     }
 
     fn headers() -> HeaderMap {
@@ -36,12 +38,11 @@ impl Twitter {
         let tweet_id = if let Some(id) = Self::extract_tweet_id(&self.url) {
             id.to_string()
         } else {
-            return HttpResponse::NotFound()
-                .json(json!({ "error_message": "Tweet not found" }));
+            return HttpResponse::NotFound().json(json!({ "error_message": "Tweet not found" }));
         };
 
         let url = "https://api.x.com/graphql/aFvUsJm2c-oDkJV75blV6g/TweetResultByRestId";
-        
+
         let features_json = r#"{
             "creator_subscriptions_tweet_preview_api_enabled": true,
             "premium_content_api_read_enabled": false,
@@ -84,15 +85,20 @@ impl Twitter {
         }"#;
 
         let params = [
-            ("variables", format!(
-                "{{\"tweetId\":\"{}\",\"includePromotedContent\":true,\"withBirdwatchNotes\":true,\"withVoice\":true,\"withCommunity\":true}}", 
-                tweet_id
-            )),
+            (
+                "variables",
+                format!(
+                    "{{\"tweetId\":\"{}\",\"includePromotedContent\":true,\"withBirdwatchNotes\":true,\"withVoice\":true,\"withCommunity\":true}}",
+                    tweet_id
+                ),
+            ),
             ("features", features_json.to_owned()),
             ("fieldToggles", field_toggles_json.to_owned()),
         ];
 
-        let resp = match self.client.get(url)
+        let resp = match self
+            .client
+            .get(url)
             .headers(Self::headers())
             .query(&params)
             .send()
@@ -115,27 +121,30 @@ impl Twitter {
 
         let mut out = Vec::new();
 
-        if let Some(legacy) = data.get("data")
+        if let Some(legacy) = data
+            .get("data")
             .and_then(|d| d.get("tweetResult"))
             .and_then(|t| t.get("result"))
             .and_then(|r| r.get("legacy"))
         {
-            if let Some(extended_entities) = legacy.get("extended_entities")
+            if let Some(extended_entities) = legacy
+                .get("extended_entities")
                 .and_then(|e| e.get("media"))
                 .and_then(|m| m.as_array())
             {
                 for media in extended_entities {
-                    if let Some(video_info) = media.get("video_info")
+                    if let Some(video_info) = media
+                        .get("video_info")
                         .and_then(|v| v.get("variants"))
                         .and_then(|v| v.as_array())
                     {
                         let mut highest_bitrate = 0;
                         let mut best_url = String::new();
-                        
+
                         for variant in video_info {
                             if let (Some(bitrate), Some(url)) = (
                                 variant.get("bitrate").and_then(|b| b.as_u64()),
-                                variant.get("url").and_then(|u| u.as_str())
+                                variant.get("url").and_then(|u| u.as_str()),
                             ) {
                                 if bitrate > highest_bitrate && url.contains("video/") {
                                     highest_bitrate = bitrate;
@@ -143,15 +152,13 @@ impl Twitter {
                                 }
                             }
                         }
-                        
+
                         if !best_url.is_empty() {
                             out.push(json!(best_url));
                         }
                     }
-                    
-                    if let Some(media_url) = media.get("media_url_https")
-                        .and_then(|u| u.as_str())
-                    {
+
+                    if let Some(media_url) = media.get("media_url_https").and_then(|u| u.as_str()) {
                         out.push(json!(media_url));
                     }
                 }
@@ -171,13 +178,17 @@ impl Twitter {
 #[tokio::test]
 async fn twitter() {
     let client = reqwest::Client::new();
-    let scraper = Twitter::new(client, "https://x.com/i/status/2003082280378773557".to_string());
+    let scraper = Twitter::new(
+        client,
+        "https://x.com/i/status/2003082280378773557".to_string(),
+    );
     let response = scraper.get_data().await;
     let status = response.status();
     println!("Status: {}", status);
-    let body_bytes = actix_web::body::to_bytes(response.into_body()).await.unwrap();
+    let body_bytes = actix_web::body::to_bytes(response.into_body())
+        .await
+        .unwrap();
     let body_str = String::from_utf8(body_bytes.to_vec()).unwrap();
     println!("Body: {}", body_str);
     assert_eq!(status, StatusCode::OK);
 }
-

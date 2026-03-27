@@ -133,7 +133,7 @@ impl Snapchat {
 #[tokio::test]
 async fn snapchat() {
     let client = reqwest::Client::new();
-    let scraper = Snapchat::new(client, "https://snapchat.com/t/3gnzD0Co".to_string());
+    let scraper = Snapchat::new(client, "https://www.snapchat.com/spotlight/W7_EDlXWTBiXAEEniNoMPwAAYd2V5eXVoenV2AZvzGGUEAZvy3AKSAAAAAQ?ref=web_spotlight".to_string());
     let response = scraper.get_data().await;
     let status = response.status();
     println!("Status: {}", status);

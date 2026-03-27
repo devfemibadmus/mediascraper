@@ -8,7 +8,8 @@ use tera::{Context, Tera};
 
 mod platforms;
 use platforms::{
-    facebook::Facebook, instagram::Instagram, snapchat::Snapchat, tiktok::TikTok, twitter::Twitter,
+    facebook::Facebook, instagram::Instagram, nasa::Nasa, snapchat::Snapchat, tiktok::TikTok,
+    twitter::Twitter,
 };
 
 #[derive(RustEmbed)]
@@ -34,7 +35,7 @@ struct Validator;
 
 impl Validator {
     fn validate(url: &str) -> &'static str {
-        let url = if url.ends_with('/') {
+        let url = if url.ends_with('/') || url.contains('#') || url.contains('?') {
             url.to_string()
         } else {
             format!("{}/", url)
@@ -48,6 +49,7 @@ impl Validator {
             (r"(facebook\.com/.*/|fb\.watch/.*/)", "Facebook"),
             (r"snapchat\.com/t/", "Snapchat"),
             (r"(twitter\.com/|x\.com/).*/status/", "Twitter"),
+            (r"svs\.gsfc\.nasa\.gov/\d+/?(#media_group_\d+)?", "NASA"),
         ];
         for (pattern, platform) in patterns.iter() {
             if Regex::new(pattern).unwrap().is_match(&url) {
@@ -125,6 +127,10 @@ async fn api_handler(
         "Twitter" => {
             let twitter = Twitter::new(client.get_ref().clone(), url.to_string());
             twitter.get_data().await
+        }
+        "NASA" => {
+            let nasa = Nasa::new(client.get_ref().clone(), url.to_string());
+            nasa.get_data().await
         }
         _ => HttpResponse::BadRequest().json(serde_json::json!({
             "error": true,

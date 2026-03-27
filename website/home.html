@@ -11,11 +11,11 @@
 		<meta name="title" content="Media Saver - Free Video & Photo Downloader for Social Media" />
 		<meta
 			name="description"
-			content="Download videos, photos, reels from Instagram, TikTok, Facebook, Twitter, Snapchat. No registration. Fast & secure online downloader."
+			content="Download videos, photos, reels, and NASA SVS media from Instagram, TikTok, Facebook, Twitter, Snapchat, and NASA. No registration. Fast & secure online downloader."
 		/>
 		<meta
 			name="keywords"
-			content="video downloader, Instagram downloader, TikTok downloader, Facebook downloader, social media downloader, save videos, download reels, free media downloader, snapchat saver"
+			content="video downloader, Instagram downloader, TikTok downloader, Facebook downloader, NASA downloader, social media downloader, save videos, download reels, free media downloader, snapchat saver"
 		/>
 		<meta name="author" content="devfemibadmus" />
 		<meta name="robots" content="index, follow, max-image-preview:large" />
@@ -28,7 +28,7 @@
 		<meta property="og:title" content="Media Saver - Free Video & Photo Downloader for Social Media" />
 		<meta
 			property="og:description"
-			content="Download videos, photos, and reels from Instagram, TikTok, Facebook, Twitter, Snapchat. No registration required."
+			content="Download videos, photos, reels, and NASA SVS media from Instagram, TikTok, Facebook, Twitter, Snapchat, and NASA. No registration required."
 		/>
 		<meta property="og:image" content="https://mediasaver.link/static/og-image.jpg" />
 		<meta property="og:image:width" content="1200" />
@@ -40,7 +40,10 @@
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:url" content="https://mediasaver.link/" />
 		<meta name="twitter:title" content="Media Saver - Free Video & Photo Downloader for Social Media" />
-		<meta name="twitter:description" content="Download videos, photos, and reels from Instagram, TikTok, Facebook, Twitter, Snapchat." />
+		<meta
+			name="twitter:description"
+			content="Download videos, photos, reels, and NASA SVS media from Instagram, TikTok, Facebook, Twitter, Snapchat, and NASA."
+		/>
 		<meta name="twitter:image" content="https://mediasaver.link/static/twitter-card.jpg" />
 		<meta name="twitter:creator" content="@devfemibadmus" />
 
@@ -286,6 +289,14 @@
 						/>
 						<span class="text-[10px] font-black text-slate-400 group-hover:text-black uppercase tracking-widest">Twitter (X)</span>
 					</div>
+					<div class="flex flex-col items-center gap-4 group cursor-default">
+						<div
+							class="w-16 h-16 rounded-full border border-slate-200 bg-white text-black flex items-center justify-center text-[11px] font-black tracking-[0.2em] group-hover:scale-110 transition-all"
+						>
+							NASA
+						</div>
+						<span class="text-[10px] font-black text-slate-400 group-hover:text-black uppercase tracking-widest">NASA SVS</span>
+					</div>
 				</div>
 			</section>
 
@@ -474,6 +485,20 @@
 				);
 			}
 
+			function inferExtension(url) {
+				const cleanedUrl = cleanUrl(url).replace("audio===", "");
+
+				try {
+					const parsed = new URL(cleanedUrl, window.location.origin);
+					const match = parsed.pathname.match(/\.([a-z0-9]+)$/i);
+					if (match) {
+						return match[1].toLowerCase();
+					}
+				} catch (error) {}
+
+				return isVideoUrl(cleanedUrl) ? "mp4" : "jpg";
+			}
+
 			function togglePrivacyModal() {
 				const isHidden = privacyModal.classList.contains("pointer-events-none");
 				if (isHidden) {
@@ -574,7 +599,7 @@
                         `
 								: ""
 						}
-                        <button onclick="downloadFile('${url}', '${currentPlatform}_${index + 1}.${isVideo ? "mp4" : "jpg"}')" 
+                        <button onclick="downloadFile('${url}', '${currentPlatform}_${index + 1}.${inferExtension(url)}')" 
                                 class="w-full py-5 bg-slate-50 hover:bg-black hover:text-white text-black font-black rounded-3xl transition-all flex items-center justify-center gap-3 active:scale-95 text-xs uppercase tracking-widest">
                             <i data-lucide="download" class="w-5 h-5"></i>
                             SAVE ASSET
@@ -629,7 +654,7 @@
 			});
 			downloadAllBtn.addEventListener("click", () => {
 				currentMediaList.forEach((url, index) => {
-					const ext = isVideoUrl(url) ? "mp4" : "jpg";
+					const ext = inferExtension(url);
 					downloadFile(url, `${currentPlatform}_${index + 1}.${ext}`);
 				});
 			});

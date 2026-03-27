@@ -2,23 +2,23 @@
 
 # MEDIASCRAPER API
 
-[![Rust](https://img.shields.io/badge/Rust-1.89+-orange?logo=rust)](https://www.rust-lang.org/) [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Google Play](https://img.shields.io/badge/Google%20Play-Download-brightgreen?logo=google-play)](https://play.google.com/store/apps/details?id=com.blackstackhub.mediasaver) ![Views](https://komarev.com/ghpvc/?username=devfemibadmus&repo=mediascraper&color=blue)
+[![Rust](https://img.shields.io/badge/Rust-1.89+-orange?logo=rust)](https://www.rust-lang.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Google Play](https://img.shields.io/badge/Google%20Play-Download-brightgreen?logo=google-play)](https://play.google.com/store/apps/details?id=com.blackstackhub.mediasaver)
+![Views](https://komarev.com/ghpvc/?username=devfemibadmus&repo=mediascraper&color=blue)
 
-## 📋 Overview
+## Overview
 
-**MEDIASCRAPER API** is a high-performance REST API built with Rust and Actix-web for extracting media content (videos, images, audio) from social media platforms using web scraping techniques.
+**MEDIASCRAPER API** is a high-performance REST API built with Rust and Actix Web for extracting media content such as videos, images, and audio from supported platforms.
 
-## ✨ Features
+## Features
 
--   **Multi-Platform Support**: Facebook, Instagram, TikTok, Snapchat, Twitter (X)
--   **High Performance**: Async/await architecture with concurrent scraping
--   **Clean API**: Consistent JSON responses across all platforms
--   **Error Handling**: Comprehensive error messages with appropriate HTTP status codes
--   **No Rate Limits**: Bypasses platform restrictions through smart scraping
+- **Multi-platform support**: Facebook, Instagram, TikTok, Snapchat, Twitter (X), and NASA SVS
+- **High performance**: async scraping with Rust and Actix Web
+- **Clean API**: consistent JSON responses across platforms
+- **Error handling**: readable failure messages with appropriate HTTP status codes
 
-## 🚀 Quick Start
-
-### Installation
+## Quick Start
 
 ```bash
 git clone https://github.com/yourusername/mediascraper.git
@@ -27,145 +27,151 @@ cargo build --release
 cargo run
 ```
 
-Server runs at: `http://localhost:8080`
+Server runs at `http://localhost:8080`.
 
-## 📖 API Usage
+## API Usage
 
-### Endpoint
+Endpoint:
 
-```
+```text
 GET or POST /api/
 ```
 
-### Request Parameters
-
-**GET Request:**
+GET request:
 
 ```bash
-curl https://mediasaver.link/api/?url=YOUR_SOCIAL_MEDIA_URL"
+curl "https://mediasaver.link/api/?url=YOUR_MEDIA_URL"
 ```
 
-**POST Request:**
+POST request:
 
 ```bash
 curl -X POST https://mediasaver.link/api/ \
   -H "Content-Type: application/json" \
-  -d '{"url": "YOUR_SOCIAL_MEDIA_URL"}'
+  -d '{"url":"YOUR_MEDIA_URL"}'
 ```
 
-## 📋 Supported Platforms
+## Supported Platforms
 
-| Platform  | Status | Example URL Pattern                                  |
-| --------- | ------ | ---------------------------------------------------- |
-| Facebook  | ✅     | `facebook.com/...`, `fb.watch/...`                   |
-| Instagram | ✅     | `instagram.com/p/...`, `instagram.com/reel/...`      |
-| TikTok    | ✅     | `tiktok.com/...`, `vm.tiktok.com/...`                |
-| Snapchat  | ✅     | `snapchat.com/t/...`                                 |
-| Twitter/X | ✅     | `twitter.com/.../status/...`, `x.com/.../status/...` |
+| Platform | Status | Example URL Pattern |
+| --- | --- | --- |
+| Facebook | OK | `facebook.com/...`, `fb.watch/...` |
+| Instagram | OK | `instagram.com/p/...`, `instagram.com/reel/...` |
+| TikTok | OK | `tiktok.com/...`, `vm.tiktok.com/...` |
+| Snapchat | OK | `snapchat.com/t/...` |
+| Twitter/X | OK | `twitter.com/.../status/...`, `x.com/.../status/...` |
+| NASA SVS | OK | `svs.gsfc.nasa.gov/12345`, `...#media_group_67890` |
 
-## 📊 Response Format
+## Response Format
 
-### Success Response (200 OK)
+Success:
 
 ```json
 {
-	"data": ["https://media-url-1.mp4", "https://media-url-2.jpg"],
-	"total": 2,
-	"platform": "platform_name"
+  "data": ["https://media-url-1.mp4", "https://media-url-2.jpg"],
+  "total": 2,
+  "platform": "platform_name"
 }
 ```
 
-### Error Response (4xx/5xx)
+Error:
 
 ```json
 {
-	"error": true,
-	"message": "Error description",
-	"error_message": "Error description"
+  "error": true,
+  "message": "Error description",
+  "error_message": "Error description"
 }
 ```
 
-## 🎯 Examples
+## Examples
 
-### TikTok
-
-```bash
-curl https://mediasaver.link/api/?url=https://vm.tiktok.com/ZSHK8GLq32Kjh-qQ9X4/
-```
-
-### Instagram
+TikTok:
 
 ```bash
-curl https://mediasaver.link/api/?url=https://www.instagram.com/reel/DHm7knuzl1D
+curl "https://mediasaver.link/api/?url=https://vm.tiktok.com/ZSHK8GLq32Kjh-qQ9X4/"
 ```
 
-### Facebook
+Instagram:
 
 ```bash
-curl https://mediasaver.link/api/?url=https://www.facebook.com/share/v/qCRH3vKk2FbAEAUP/
+curl "https://mediasaver.link/api/?url=https://www.instagram.com/reel/DHm7knuzl1D"
 ```
 
-### Snapchat
+Facebook:
 
 ```bash
-curl https://mediasaver.link/api/?url=https://snapchat.com/t/GJbX4HdO
+curl "https://mediasaver.link/api/?url=https://www.facebook.com/share/v/qCRH3vKk2FbAEAUP/"
 ```
 
-### Twitter
+Snapchat:
 
 ```bash
-curl https://mediasaver.link/api/?url=https://x.com/username/status/1234567890
+curl "https://mediasaver.link/api/?url=https://snapchat.com/t/GJbX4HdO"
 ```
 
-## 🏗️ Project Structure
+Twitter:
 
+```bash
+curl "https://mediasaver.link/api/?url=https://x.com/username/status/1234567890"
 ```
+
+NASA SVS:
+
+```bash
+curl "https://mediasaver.link/api/?url=https://svs.gsfc.nasa.gov/31373/#media_group_379948"
+```
+
+## Project Structure
+
+```text
 mediascraper/
-├── src/
-│   ├── main.rs
-│   └── platforms/
-│       ├── mod.rs
-│       ├── facebook.rs
-│       ├── instagram.rs
-│       ├── tiktok.rs
-│       ├── snapchat.rs
-│       └── twitter.rs
-├── Cargo.toml
-└── website/
-    ├── static/
-    └── *.html
+|-- src/
+|   |-- main.rs
+|   `-- platforms/
+|       |-- mod.rs
+|       |-- facebook.rs
+|       |-- instagram.rs
+|       |-- nasa.rs
+|       |-- snapchat.rs
+|       |-- tiktok.rs
+|       `-- twitter.rs
+|-- Cargo.toml
+`-- website/
+    |-- static/
+    `-- *.html
 ```
 
-## 📦 Dependencies
+## Dependencies
 
 Key dependencies in `Cargo.toml`:
 
--   `actix-web = "4.0"` - Web framework
--   `reqwest = "0.11"` - HTTP client
--   `scraper = "0.18"` - HTML parsing
--   `serde_json = "1.0"` - JSON handling
--   `regex = "1.10"` - URL validation
--   `tera = "1.19"` - Templates
+- `actix-web` for the HTTP server
+- `reqwest` for outbound requests
+- `scraper` for HTML parsing
+- `serde_json` for JSON handling
+- `regex` for URL validation
+- `tera` for template rendering
 
-## 🧪 Testing
+## Testing
 
-Run tests:
+Run all tests:
 
 ```bash
 cargo test
 ```
 
-Run specific platform test:
+Run a specific platform test:
 
 ```bash
 cargo test facebook -- --nocapture
-cargo test instagram -- --nocapture
+cargo test nasa -- --nocapture
 ```
 
-## ⚠️ Disclaimer
+## Disclaimer
 
-This tool is for educational purposes only. Use responsibly and respect platform terms of service. Not responsible for misuse.
+This tool is for educational purposes only. Use it responsibly and respect platform terms of service.
 
-## 📄 License
+## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+MIT License. See [LICENSE](LICENSE).

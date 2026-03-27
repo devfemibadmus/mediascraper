@@ -1,7 +1,7 @@
-use reqwest::Client;
-use serde_json::{json, Value};
 use actix_web::{HttpResponse, http::StatusCode};
-use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, ACCEPT_LANGUAGE, CONTENT_TYPE, USER_AGENT};
+use reqwest::Client;
+use reqwest::header::{ACCEPT, ACCEPT_LANGUAGE, CONTENT_TYPE, HeaderMap, HeaderValue, USER_AGENT};
+use serde_json::{Value, json};
 
 pub struct Instagram {
     client: Client,
@@ -21,18 +21,28 @@ impl Instagram {
         let mut headers = HeaderMap::new();
         headers.insert(ACCEPT, HeaderValue::from_static("*/*"));
         headers.insert(ACCEPT_LANGUAGE, HeaderValue::from_static("en-US,en;q=0.9"));
-        headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/x-www-form-urlencoded"));
+        headers.insert(
+            CONTENT_TYPE,
+            HeaderValue::from_static("application/x-www-form-urlencoded"),
+        );
         headers.insert(USER_AGENT, HeaderValue::from_static(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36 Edg/136.0.0.0"
         ));
-        headers.insert("Origin", HeaderValue::from_static("https://www.instagram.com"));
-        headers.insert("Referer", HeaderValue::from_static("https://www.instagram.com"));
+        headers.insert(
+            "Origin",
+            HeaderValue::from_static("https://www.instagram.com"),
+        );
+        headers.insert(
+            "Referer",
+            HeaderValue::from_static("https://www.instagram.com"),
+        );
         headers.insert("X-CSRFToken", HeaderValue::from_static("11111111111"));
         headers
     }
 
     fn extract_item_id(url: &str) -> Option<&str> {
-        url.split("/reel/").nth(1)
+        url.split("/reel/")
+            .nth(1)
             .or_else(|| url.split("/p/").nth(1))
             .and_then(|s| s.split('/').next())
     }
@@ -41,8 +51,7 @@ impl Instagram {
         let item_id = if let Some(id) = Self::extract_item_id(&self.url) {
             id.to_string()
         } else {
-            return HttpResponse::NotFound()
-                .json(json!({ "error_message": "Post not found" }));
+            return HttpResponse::NotFound().json(json!({ "error_message": "Post not found" }));
         };
 
         let graphql_data = json!({
@@ -68,7 +77,9 @@ impl Instagram {
             "doc_id": "9510064595728286"
         });
 
-        let resp = match self.client.post(Self::graphql())
+        let resp = match self
+            .client
+            .post(Self::graphql())
             .headers(Self::headers())
             .form(&graphql_data)
             .send()
@@ -111,9 +122,10 @@ impl Instagram {
             }
         }
 
-        if let Some(edges) = item.get("edge_sidecar_to_children")
+        if let Some(edges) = item
+            .get("edge_sidecar_to_children")
             .and_then(|c| c.get("edges"))
-            .and_then(|a| a.as_array()) 
+            .and_then(|a| a.as_array())
         {
             for edge in edges {
                 if let Some(node) = edge.get("node") {
@@ -123,7 +135,9 @@ impl Instagram {
                     if let Some(display_url) = node.get("display_url") {
                         out.push(display_url.clone());
                     }
-                    if let Some(resources) = node.get("display_resources").and_then(|r| r.as_array()) {
+                    if let Some(resources) =
+                        node.get("display_resources").and_then(|r| r.as_array())
+                    {
                         if let Some(last) = resources.last() {
                             if let Some(video_url) = last.get("src") {
                                 out.push(video_url.clone());
@@ -152,13 +166,17 @@ impl Instagram {
 #[tokio::test]
 async fn instagram() {
     let client = reqwest::Client::new();
-    let scraper = Instagram::new(client, "https://www.instagram.com/reel/DHm7knuzl1D".to_string());
+    let scraper = Instagram::new(
+        client,
+        "https://www.instagram.com/reel/DHm7knuzl1D".to_string(),
+    );
     let response = scraper.get_data().await;
     let status = response.status();
     println!("Status: {}", status);
-    let body_bytes = actix_web::body::to_bytes(response.into_body()).await.unwrap();
+    let body_bytes = actix_web::body::to_bytes(response.into_body())
+        .await
+        .unwrap();
     let body_str = String::from_utf8(body_bytes.to_vec()).unwrap();
     println!("Body: {}", body_str);
     assert_eq!(status, StatusCode::OK);
 }
-
