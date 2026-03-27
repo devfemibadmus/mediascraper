@@ -78,14 +78,6 @@ async fn api_handler(
         .iter()
         .any(|token| user_agent.contains(token));
 
-    if is_apple_request {
-        return HttpResponse::BadRequest().json(serde_json::json!({
-            "error": true,
-            "message": "Unsupported URL",
-            "error_message": "Unsupported URL"
-        }));
-    }
-
     let json: HashMap<String, serde_json::Value> =
         serde_json::from_slice(&body).unwrap_or_default();
     let url = json
@@ -103,6 +95,14 @@ async fn api_handler(
 
     let url = url.unwrap();
     let platform = Validator::validate(url);
+
+    if platform != "NASA" && is_apple_request {
+        return HttpResponse::BadRequest().json(serde_json::json!({
+            "error": true,
+            "message": "Unsupported URL",
+            "error_message": "Unsupported URL"
+        }));
+    }
 
     match platform {
         "Facebook" => {
